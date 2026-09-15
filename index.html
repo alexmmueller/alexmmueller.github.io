@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alexander Müller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="description" content="Alexander Müller — hands-on technical product leader. Internet security, analytics and protocols.">
+<style>
+:root{
+  --bg:#0b0d10; --chrome:#0f1216; --line:#1d212a;
+  --ink:#e9eaee; --dim:#858b96; --faint:#555b65;
+  --accent:#6fa26f;          /* the only hue on the page — deep terminal green.
+                                lighter options if you want more lift:
+                                #8ec07c (gruvbox) · #98c379 (one dark)       */
+  --key:var(--accent);       /* commands read as actionable, like links */
+  --warn:#cf8b76;
+  /* one line to swap — add the matching fonts.googleapis link above:
+       "IBM Plex Mono"  warmer, humanist
+       "DM Mono"        lighter, more geometric
+       (or delete the link entirely and let the system stack do it —
+        that gives SF Mono on macOS, which is what Ghostty uses)          */
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#070809;-webkit-text-size-adjust:100%}
+body{font-family:var(--mono);font-size:14.5px;line-height:1.62;color:var(--ink);
+  min-height:100dvh;padding:clamp(0px,3vw,30px)}
+body:not(.plain){overflow:hidden}   /* .win owns the height; #term scrolls */
+::selection{background:rgba(111,162,111,.22)}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(111,162,111,.32)}
+a:hover{border-bottom-color:var(--accent)}
+b{color:#fff;font-weight:600}
+
+.win{position:relative;max-width:78ch;margin:0 auto;background:var(--bg);border:1px solid var(--line);
+  border-radius:10px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;height:calc(100dvh - clamp(0px,6vw,60px))}
+.bar{display:flex;align-items:center;justify-content:center;padding:8px 13px;
+  background:var(--chrome);border-bottom:1px solid var(--line);flex:none}
+.bar .t{color:var(--faint);font-size:.76em;letter-spacing:.04em}
+
+#term{flex:1 1 auto;min-height:0;overflow-y:auto;cursor:text;
+  padding:0 clamp(13px,3vw,20px) 22px;
+  scrollbar-width:thin;scrollbar-color:transparent transparent;transition:scrollbar-color .25s}
+#term:hover{scrollbar-color:#262b34 transparent}
+#term::-webkit-scrollbar{width:7px;height:7px}
+#term::-webkit-scrollbar-track{background:transparent}
+#term::-webkit-scrollbar-thumb{background:transparent;border-radius:99px;
+  border:2px solid transparent;background-clip:content-box;transition:background-color .25s}
+#term:hover::-webkit-scrollbar-thumb{background-color:#2a3039}
+#term::-webkit-scrollbar-thumb:hover{background-color:#3d444e}
+.line{white-space:pre-wrap;word-break:break-word}
+.pr{color:var(--accent)} .pr .path{color:var(--dim)}
+.out{margin:2px 0 14px}
+.grp{margin-bottom:15px} .grp:last-child{margin-bottom:0}
+.grp>.lbl{display:block;color:var(--accent);margin-bottom:5px}
+.bk{white-space:normal;padding-left:2.5ch;margin-bottom:7px}
+.bk:last-child{margin-bottom:0}
+.bk a{border-bottom-color:transparent}
+.bk a:hover{border-bottom-color:var(--accent)}
+.bk .why{display:block;color:var(--faint);margin-top:1px}
+.para{white-space:normal;margin-bottom:11px}
+.para:last-child{margin-bottom:0}
+.kv{display:grid;grid-template-columns:max-content 1fr;column-gap:1.6ch;row-gap:5px;
+  white-space:normal;padding-left:2ch}
+.kv .k2{color:var(--accent)}
+.dim{color:var(--dim)} .faint{color:var(--faint)} .key{color:var(--key)} .err{color:var(--warn)}
+#form{display:flex;align-items:baseline}
+#in{flex:1;font:inherit;color:var(--ink);background:none;border:0;outline:0;
+  min-width:0;caret-color:var(--accent);margin-left:.55ch}
+.win::after{content:"";position:absolute;left:1px;right:1px;bottom:1px;height:52px;
+  pointer-events:none;opacity:0;transition:opacity .22s;
+  background:linear-gradient(transparent,var(--bg))}
+.win.more::after{opacity:1}
+#banner{position:sticky;top:0;z-index:1;background:var(--bg);white-space:pre-wrap;
+  padding:16px 0 11px;margin-bottom:13px;border-bottom:1px solid var(--line)}
+
+body.plain .win{display:none}
+#plain{display:none;max-width:72ch;margin:0 auto;padding:30px 18px 70px}
+body.plain #plain{display:block}
+#plain h2{font-size:.78em;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);margin:26px 0 8px}
+#plain h2:first-of-type{margin-top:0}
+#plain ul{list-style:none}
+#plain li{padding-left:15px;position:relative;margin-bottom:5px}
+#plain li::before{content:"–";position:absolute;left:0;color:var(--faint)}
+.tog{background:none;border:0;font:inherit;font-size:.8em;color:var(--faint);
+  cursor:pointer;text-decoration:underline;padding:0}
+.tog:hover{color:var(--ink)}
+@media (max-width:560px){body{font-size:13.5px;padding:0}
+  .win{border:0;border-radius:0;height:100dvh}}
+</style>
+</head>
+<body>
+
+<div class="win">
+  <div class="bar"><span class="t">alex@mueller — ~</span></div>
+  <div id="term">
+    <div id="banner"></div>
+    <div id="hist"></div>
+    <form id="form">
+      <span class="pr">alex@mueller <span class="path">~</span> $</span><input id="in"
+        autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+        aria-label="Terminal input">
+    </form>
+  </div>
+</div>
+
+<section id="plain"></section>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   EVERYTHING YOU EDIT LIVES IN THIS BLOCK. Nothing below it needs touching.
+
+     **double asterisks**  →  bold
+     _underscores_         →  dimmed
+     {books}               →  a clickable link that runs that command
+
+   ══════════════════════════════════════════════════════════════════════ */
+
+const ME={
+  name    : "Alexander Müller",
+  tagline : "Product nut with conviction, curiosity and empathy",
+  where   : "Leipzig, Germany",
+  mail    : "alex.m.mueller@posteo.de",
+  x       : "alexmattm",
+  li      : "linkedin.com/in/alex-m-mueller",
+};
+
+/* ---- whoami ------------------------------------------------------------ */
+const INTRO = `
+Hands-on technical product leader, 15+ years — across internet security,
+analytics and protocols.
+
+What makes me tick is the thing the internet was supposed to be: a network
+that lets anyone, anywhere, access and share information freely. Most of it
+got folded into a handful of platforms whose actual business is extracting
+from the people using them. The lock-in is a design decision, not an accident.
+
+Decentralization, trust minimization and open, shared governance are close
+to my heart — less as ideology than as plumbing: who holds the keys, who is
+allowed to fork, and who gets to say no.
+
+_Where a lot of this comes from:_ {books}`;
+
+/* ---- talks ------------------- [ title, where, year, link (optional) ] -- */
+const TALKS=[
+ ["Credit for the Machine Age","EthCC",2026,
+  "https://www.youtube.com/watch?v=2eXDwEleTn4"],
+ ["Rethinking Competition in Solver-Based Networks","Protocol Berg, Berlin",2025,
+  "https://youtu.be/VkCcCdD_DQk"],
+ ["Why Most Solvers Aren't Profitable","interop/acc podcast, LI.FI",2025,
+  "https://lifi.substack.com/p/why-most-solvers-arent-profitable"],
+ ["Building Economic Trust in Solver-Based Networks","three-part series, blog.sprinter.tech",2025,
+  "https://blog.sprinter.tech/building-economic-trust-in-solver-based-networks-part-1/"]];
+
+/* ---- hobbies ------------------------------- [ label, text ] ----------- */
+const HOBBIES=[
+ ["synthesizers","patching more than finishing tracks"],
+ ["gravel riding","long, unpaved, deliberately unoptimized — and building my own bike computer rather than buying one"],
+ ["reading","see: {books}"]];
+
+/* ---- books ------------------------- [ title, author, why ] ------------ */
+const BOOKS={
+ nonfiction:{
+  "on governance":[
+   ["Governing the Commons","Elinor Ostrom","the field data answer to the tragedy of the commons: people do govern shared resources well, given the right rules"],
+   ["Governable Spaces","Nathan Schneider","online platforms ended up feudal by default. What democratic design would look like instead"],
+   ["Plurality","Audrey Tang & E. Glen Weyl","technology for collaborating across difference — written in the open, the way it argues for"]],
+  "internet utopia & dystopia":[
+   ["Platform Capitalism","Nick Srnicek","why the platform shape keeps winning. Short, clear-eyed"],
+   ["Platform Socialism","James Muldoon","what the alternative would actually have to look like"],
+   ["Digitale Solidarität","Blankertz & Engeler","on aligning technology with people rather than capital"]],
+  "working in public":[
+   ["Working in Public","Nadia Eghbal","most open source is held up by a handful of maintainers, not a community. The economics of that"],
+   ["The Cathedral & the Bazaar","Eric S. Raymond","the original argument for building in the open"],
+   ["Peer to Peer: The Commons Manifesto","Bauwens, Kostakis & Pazaitis","peer production as an economic model, not a hobby"]],
+  "digital history":[
+   ["The Dream Machine","M. Mitchell Waldrop","Licklider and the people who thought computers were for augmenting us"],
+   ["How the Internet Happened","Brian McCullough","Netscape to the iPhone, by someone who was paying attention throughout"],
+   ["Crypto Anarchy, Cyberstates and Pirate Utopias","Peter Ludlow (ed.)","the arguments from before any of this was settled"]]},
+ fiction:[
+  ["Walkaway","Cory Doctorow","what people build once they stop asking permission"],
+  ["Infinite Jest","David Foster Wallace","a thousand pages on entertainment engineered to be impossible to stop. Written before the feed existed"],
+  ["Gravity's Rainbow","Thomas Pynchon","paranoia as a research method. The system turns out to be one machine"],
+  ["The Dispossessed","Ursula K. Le Guin","two economies, neither of them clean"]]};
+
+/* ───────────────────────── end of editable content ───────────────────── */
+
+const e=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const rich=t=>e(t)
+  .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+  .replace(/_(.+?)_/g,'<span class="dim">$1</span>')
+  .replace(/\{(\w+)\}/g,'<a href="#" data-cmd="$1">$1</a>');
+/* blank line = new paragraph; every other newline is just source wrapping */
+const flow=t=>t.trim().split(/\n\s*\n/)
+  .map(p=>`<div class="para">${rich(p.replace(/\s*\n\s*/g," "))}</div>`).join("");
+const pad=(s,n)=>String(s)+" ".repeat(Math.max(0,n-String(s).length));
+
+const CMD={
+ help:()=>[`<span class="dim">Commands — tab completes, ↑ recalls.</span>`,``,
+   ...[["whoami","who I am"],["talks","talks, writing, podcasts"],
+       ["hobbies","what I do offline"],["books","fiction and non-fiction worth passing on"],
+       ["contact","how to reach me"],``,
+       ["read","plain page, everything at once"],["clear","clear the screen"]]
+     .map(x=>Array.isArray(x)
+       ?`  <span class="key">${pad(x[0],9)}</span><span class="dim">${x[1]}</span>`:``)].join("\n"),
+
+ whoami:()=>[`<b>${e(ME.name)}</b>`,
+   `<span class="dim">${e(ME.tagline)}</span>`,
+   `<span class="faint">${e(ME.where)}</span>`,``,
+   flow(INTRO)].join("\n"),
+
+ talks:()=>TALKS.map(([t,w,y,u])=>
+   `<div class="bk">`+
+   (u?`<a href="${e(u)}" target="_blank" rel="noopener"><b>${e(t)}</b></a>`
+     :`<b>${e(t)}</b>`)+
+   `<span class="why">${e(w)} · ${y}</span></div>`).join(""),
+
+ books:a=>{
+   const item=([t,who,why])=>`<div class="bk"><b>${e(t)}</b> <span class="dim">· ${e(who)}</span>`+
+     `<span class="why">${e(why)}</span></div>`;
+   const grp=(label,list)=>`<div class="grp"><span class="lbl">${e(label)}</span>${list.map(item).join("")}</div>`;
+   const nf=()=>Object.entries(BOOKS.nonfiction).map(([g,v])=>grp(g,v)).join("");
+   const fi=()=>grp("fiction",BOOKS.fiction);
+   const q=(a||"").toLowerCase();
+   if(q.startsWith("fic")) return fi();
+   if(q.startsWith("non")) return nf();
+   return `<div class="dim">Mostly one question from different angles:\nwho owns the infrastructure, and who gets to decide.</div><br>`+
+     nf()+fi(); },
+
+ hobbies:()=>`<div class="kv">`+HOBBIES.map(([k,v])=>
+   `<span class="k2">${e(k)}</span><span class="dim">${rich(v)}</span>`).join("")+`</div>`,
+
+ contact:()=>[`  <a href="mailto:${ME.mail}">${ME.mail}</a>`,
+   `  <a href="https://x.com/${ME.x}">x.com/${ME.x}</a>`,
+   `  <a href="https://${ME.li}">${ME.li}</a>`].join("\n"),
+
+ read:()=>{document.body.classList.add('plain');return null;},
+ clear:()=>{hist.innerHTML='';return null;},
+ ls:()=>CMD.help(),
+};
+const ALIAS={plain:"read",exit:"read",man:"help","--help":"help","-h":"help","?":"help",
+ about:"whoami",bio:"whoami",who:"whoami",now:"whoami",experience:"whoami",work:"whoami",
+ cv:"contact",resume:"contact",email:"contact",hire:"contact",
+ reading:"books",book:"books",music:"hobbies",synths:"hobbies",bike:"hobbies",
+ cycling:"hobbies",life:"hobbies",writing:"talks",speaking:"talks"};
+
+const term=document.getElementById('term'),hist=document.getElementById('hist'),
+      form=document.getElementById('form'),input=document.getElementById('in');
+let log=[],li=-1;
+const echo=(html,cls)=>{const d=document.createElement('div');
+  d.className='line '+(cls||'');d.innerHTML=html;hist.appendChild(d);return d;};
+
+function run(raw){
+  const str=raw.trim();
+  echo(`<span class="pr">alex@mueller <span class="path">~</span> $</span> ${e(raw)}`);
+  if(!str) return;
+  log.push(str); li=log.length;
+  const [c,...rest]=str.split(/\s+/);
+  const fn=CMD[ALIAS[c.toLowerCase()]||c.toLowerCase()];
+  const out=fn?fn(rest.join(" "))
+    :`<span class="err">command not found: ${e(c)}</span>\n`+
+     `<span class="dim">type</span> <span class="key">help</span>`+
+     `<span class="dim"> for the list, or</span> <span class="key">read</span>`+
+     `<span class="dim"> for a plain page.</span>`;
+  if(out!==null) echo(out,'out');
+  term.scrollTop=term.scrollHeight; syncFade();
+}
+
+form.addEventListener('submit',ev=>{ev.preventDefault();const v=input.value;input.value='';
+  run(v);term.scrollTop=term.scrollHeight;});
+input.addEventListener('keydown',ev=>{
+  if(ev.key==='ArrowUp'){if(li>0)input.value=log[--li];ev.preventDefault();}
+  else if(ev.key==='ArrowDown'){li=Math.min(li+1,log.length);input.value=log[li]||'';ev.preventDefault();}
+  else if(ev.key==='Tab'){ev.preventDefault();
+    const v=input.value.trim().toLowerCase();if(!v)return;
+    const m=Object.keys(CMD).filter(k=>k.startsWith(v));
+    if(m.length===1)input.value=m[0];
+    else if(m.length>1)echo(`<span class="dim">${m.join("  ")}</span>`,'out');}
+  else if(ev.ctrlKey&&ev.key==='l'){ev.preventDefault();hist.innerHTML='';}
+});
+const win=document.querySelector('.win');
+const syncFade=()=>win.classList.toggle('more',
+  term.scrollHeight - term.scrollTop - term.clientHeight > 6);
+term.addEventListener('scroll',syncFade,{passive:true});
+addEventListener('resize',syncFade);
+term.addEventListener('click',ev=>{
+  const link=ev.target.closest('a[data-cmd]');
+  if(link){ev.preventDefault();run(link.dataset.cmd);term.scrollTop=term.scrollHeight;input.focus();return;}
+  if(!ev.target.closest('a,button'))input.focus();});
+
+document.getElementById('banner').innerHTML=[
+ `<b>${e(ME.name)}</b> <span class="dim">— ${e(ME.tagline)}</span>`,
+ `<span class="faint">${e(ME.where)} · last login: ${new Date().toDateString()}</span>`,``,
+ `<span class="faint">commands</span>  `+
+   ["whoami","talks","hobbies","books","contact","read","clear"]
+     .map(c=>`<span class="key">${c}</span>`).join('<span class="faint"> · </span>')+
+   `<span class="faint">  (help for detail)</span>`].join("\n");
+
+input.focus(); syncFade();
+
+document.getElementById('plain').innerHTML=`
+ <h2>${e(ME.name)}</h2>
+ <p>${e(ME.tagline)}<br><span class="dim">${e(ME.where)}</span></p>
+ <div style="margin-top:12px">${flow(INTRO)}</div>
+ <h2>Talks &amp; writing</h2>
+ <ul>${TALKS.map(([t,w,y,u])=>`<li>${u?`<a href="${e(u)}" target="_blank" rel="noopener">${e(t)}</a>`:e(t)} — ${e(w)}, ${y}</li>`).join('')}</ul>
+ <h2>Offline</h2>
+ <ul>${HOBBIES.map(([k,v])=>`<li>${e(k)} — ${rich(v)}</li>`).join('')}</ul>
+ <h2>Reading</h2>
+ <p class="dim">Mostly one question from different angles: who owns the infrastructure,
+ and who gets to decide.</p>
+ ${Object.entries(BOOKS.nonfiction).map(([g,v])=>`<div style="margin-top:12px"><div class="dim">${e(g)}</div>
+   <ul>${v.map(([t,who,why])=>`<li>${e(t)} — ${e(who)}<br><span class="dim">${e(why)}</span></li>`).join('')}</ul></div>`).join('')}
+ <div style="margin-top:12px"><div class="dim">fiction</div>
+   <ul>${BOOKS.fiction.map(([t,who,why])=>`<li>${e(t)} — ${e(who)}<br><span class="dim">${e(why)}</span></li>`).join('')}</ul></div>
+ <h2>Contact</h2>
+ <p><a href="mailto:${ME.mail}">${ME.mail}</a> · <a href="https://x.com/${ME.x}">x.com/${ME.x}</a>
+    · <a href="https://${ME.li}">${ME.li}</a></p>
+ <p style="margin-top:24px"><button class="tog" onclick="document.body.classList.remove('plain')">back to the terminal</button></p>`;
+</script>
+</body>
+</html>
