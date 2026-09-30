@@ -34,7 +34,7 @@ a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(111,162,
 a:hover{border-bottom-color:var(--accent)}
 b{color:#fff;font-weight:600}
 
-.win{position:relative;max-width:78ch;margin:0 auto;background:var(--bg);border:1px solid var(--line);
+.win{position:relative;max-width:112ch;margin:0 auto;background:var(--bg);border:1px solid var(--line);
   border-radius:10px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);
   display:flex;flex-direction:column;height:calc(100dvh - clamp(0px,6vw,60px))}
 .bar{display:flex;align-items:center;justify-content:center;padding:8px 13px;
@@ -78,7 +78,7 @@ b{color:#fff;font-weight:600}
   padding:16px 0 11px;margin-bottom:13px;border-bottom:1px solid var(--line)}
 
 body.plain .win{display:none}
-#plain{display:none;max-width:72ch;margin:0 auto;padding:30px 18px 70px}
+#plain{display:none;max-width:100ch;margin:0 auto;padding:30px 18px 70px}
 body.plain #plain{display:block}
 #plain h2{font-size:.78em;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
   color:var(--faint);margin:26px 0 8px}
@@ -124,10 +124,15 @@ const ME={
   name    : "Alexander Müller",
   tagline : "Product nut with conviction, curiosity and empathy",
   where   : "Leipzig, Germany",
-  mail    : "alex.m.mueller@posteo.de",
+  /* split so a plain regex-over-HTML scraper doesn't find a bare mailto: address;
+     assembled at render time instead of baked into the markup as one literal string */
+  mailUser: "alex.m.mueller",
+  mailHost: "posteo.de",
   x       : "alexmattm",
   li      : "linkedin.com/in/alex-m-mueller",
 };
+const mailAddr = () => `${ME.mailUser}@${ME.mailHost}`;
+const mailLink = () => `<a href="#" data-mail="1">${e(mailAddr()).replace("@"," (at) ")}</a>`;
 
 /* ---- whoami ------------------------------------------------------------ */
 const INTRO = `
@@ -187,6 +192,21 @@ const BOOKS={
   ["Gravity's Rainbow","Thomas Pynchon","paranoia as a research method. The system turns out to be one machine"],
   ["The Dispossessed","Ursula K. Le Guin","two economies, neither of them clean"]]};
 
+/* ---- consulting --------------------------------------------------------- */
+const CONSULTING_INTRO = `
+Fractional product leadership for frontier technology and security projects.
+
+Available for advisory, fractional and project-based engagements — Berlin/remote, EU hours.`;
+
+const CONSULTING_HELP=[
+ "0→1 product strategy — from \"we built something\" to a wedge, pricing and a GTM motion",
+ "Fractional/interim technical product leadership — product strategy gaps at Seed/Series A/B companies",
+ "Fundraise narrative & data room — supported **$5M** seed + **$18M** Series A",
+ "GTM for hard-to-sell technical products — OEM/B2B, protocol/standards-driven, security & infra",
+];
+
+const CONSULTING_BUILT=["Sprinter","ChainSafe Systems","Rhebo (acquired)","Ipoque – A R&S Company"];
+
 /* ───────────────────────── end of editable content ───────────────────── */
 
 const e=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -203,6 +223,7 @@ const CMD={
  help:()=>[`<span class="dim">Commands — tab completes, ↑ recalls.</span>`,``,
    ...[["whoami","who I am"],["talks","talks, writing, podcasts"],
        ["hobbies","what I do offline"],["books","fiction and non-fiction worth passing on"],
+       ["consulting","fractional & advisory product work"],
        ["contact","how to reach me"],``,
        ["read","plain page, everything at once"],["clear","clear the screen"]]
      .map(x=>Array.isArray(x)
@@ -234,9 +255,18 @@ const CMD={
  hobbies:()=>`<div class="kv">`+HOBBIES.map(([k,v])=>
    `<span class="k2">${e(k)}</span><span class="dim">${rich(v)}</span>`).join("")+`</div>`,
 
- contact:()=>[`  <a href="mailto:${ME.mail}">${ME.mail}</a>`,
+ contact:()=>[`  ${mailLink()}`,
    `  <a href="https://x.com/${ME.x}">x.com/${ME.x}</a>`,
    `  <a href="https://${ME.li}">${ME.li}</a>`].join("\n"),
+
+ consulting:()=>[
+   flow(CONSULTING_INTRO),
+   `<div class="grp"><span class="lbl">What I help with</span>`+
+     CONSULTING_HELP.map(t=>`<div class="bk">${rich(t)}</div>`).join("")+`</div>`,
+   `<div class="grp"><span class="lbl">Built this at</span>`+
+     `<div class="bk">${CONSULTING_BUILT.map(e).join(" · ")}</div></div>`,
+   `<div class="grp"><span class="lbl">Get in touch</span>`+CMD.contact()+`</div>`,
+ ].join("\n"),
 
  read:()=>{document.body.classList.add('plain');return null;},
  clear:()=>{hist.innerHTML='';return null;},
@@ -244,7 +274,8 @@ const CMD={
 };
 const ALIAS={plain:"read",exit:"read",man:"help","--help":"help","-h":"help","?":"help",
  about:"whoami",bio:"whoami",who:"whoami",now:"whoami",experience:"whoami",work:"whoami",
- cv:"contact",resume:"contact",email:"contact",hire:"contact",
+ cv:"contact",resume:"contact",email:"contact",
+ hire:"consulting",advisory:"consulting",services:"consulting",freelance:"consulting",fractional:"consulting",
  reading:"books",book:"books",music:"hobbies",synths:"hobbies",bike:"hobbies",
  cycling:"hobbies",life:"hobbies",writing:"talks",speaking:"talks"};
 
@@ -288,15 +319,21 @@ const syncFade=()=>win.classList.toggle('more',
 term.addEventListener('scroll',syncFade,{passive:true});
 addEventListener('resize',syncFade);
 term.addEventListener('click',ev=>{
+  const mail=ev.target.closest('a[data-mail]');
+  if(mail){ev.preventDefault();location.href='mailto:'+mailAddr();return;}
   const link=ev.target.closest('a[data-cmd]');
   if(link){ev.preventDefault();run(link.dataset.cmd);term.scrollTop=term.scrollHeight;input.focus();return;}
   if(!ev.target.closest('a,button'))input.focus();});
+document.getElementById('plain').addEventListener('click',ev=>{
+  const mail=ev.target.closest('a[data-mail]');
+  if(mail){ev.preventDefault();location.href='mailto:'+mailAddr();}
+});
 
 document.getElementById('banner').innerHTML=[
  `<b>${e(ME.name)}</b> <span class="dim">— ${e(ME.tagline)}</span>`,
  `<span class="faint">${e(ME.where)} · last login: ${new Date().toDateString()}</span>`,``,
  `<span class="faint">commands</span>  `+
-   ["whoami","talks","hobbies","books","contact","read","clear"]
+   ["whoami","talks","hobbies","books","consulting","contact","read","clear"]
      .map(c=>`<span class="key">${c}</span>`).join('<span class="faint"> · </span>')+
    `<span class="faint">  (help for detail)</span>`].join("\n");
 
@@ -317,8 +354,13 @@ document.getElementById('plain').innerHTML=`
    <ul>${v.map(([t,who,why])=>`<li>${e(t)} — ${e(who)}<br><span class="dim">${e(why)}</span></li>`).join('')}</ul></div>`).join('')}
  <div style="margin-top:12px"><div class="dim">fiction</div>
    <ul>${BOOKS.fiction.map(([t,who,why])=>`<li>${e(t)} — ${e(who)}<br><span class="dim">${e(why)}</span></li>`).join('')}</ul></div>
+ <h2>Consulting</h2>
+ <div>${flow(CONSULTING_INTRO)}</div>
+ <div class="dim" style="margin-top:10px">What I help with</div>
+ <ul>${CONSULTING_HELP.map(t=>`<li>${rich(t)}</li>`).join('')}</ul>
+ <p style="margin-top:10px"><span class="dim">Built this at:</span> ${CONSULTING_BUILT.map(e).join(' · ')}</p>
  <h2>Contact</h2>
- <p><a href="mailto:${ME.mail}">${ME.mail}</a> · <a href="https://x.com/${ME.x}">x.com/${ME.x}</a>
+ <p>${mailLink()} · <a href="https://x.com/${ME.x}">x.com/${ME.x}</a>
     · <a href="https://${ME.li}">${ME.li}</a></p>
  <p style="margin-top:24px"><button class="tog" onclick="document.body.classList.remove('plain')">back to the terminal</button></p>`;
 </script>
